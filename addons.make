@@ -1,0 +1,3 @@
+ofxLua
+ofxXmlSettings
+ofxUI

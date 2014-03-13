@@ -10,32 +10,42 @@
  */
 #include "ofApp.h"
 
+#include "StringBuilder.h"
 
 //--------------------------------------------------------------
 void ofApp::setup() {
 
 	ofSetVerticalSync(true);
-	ofSetLogLevel("ofxLua", OF_LOG_NOTICE);
     ofSetEscapeQuitsApp(false);
     
     hasError= false;
     
     //file browser gui
-    gui = new ofxUICanvas();
+    gui = new ofxUIScrollableCanvas();
+   max_gui_width = OFX_UI_GLOBAL_CANVAS_WIDTH;
     ofAddListener(gui->newGUIEvent,this,&ofApp::guiEvent);
-    
-    //console gui
-    guiConsole = new ofxUICanvas();
-    ofAddListener(gui->newGUIEvent,this,&ofApp::guiConsoleEvent);
-    
-    ofSetLoggerChannel(ofPtr<ofGUILoggerChannel>(new ofGUILoggerChannel(this)console));
-    
+
 		
 	// scripts to run
     scripts.push_back("scripts/dragScript.lua");
     
     reset_directory_gui();
-    
+   
+   
+   //console gui
+   guiConsole = new ofxUIScrollableCanvas();
+   ofAddListener(gui->newGUIEvent,this,&ofApp::guiConsoleEvent);
+   
+   //Redirect all log output to gui console
+   ofSetLoggerChannel(ofPtr<ofGUILoggerChannel>(new ofGUILoggerChannel(this)));
+	ofSetLogLevel("ofxLua", OF_LOG_NOTICE);
+   
+   //Set position and size of console GUI
+   windowResized(ofGetWidth(), ofGetHeight());
+   
+   ofLogNotice()<<"Test Msg words words yellow sadfhjasdk fAUGSDLASKHJ"<<endl;
+   ofLogNotice()<<"This is a super long test message. I really want an avocado and a beach. Got one?"<<endl;
+   
 	currentScript = 0;
 	
 	// init the lua state
@@ -98,11 +108,11 @@ void ofApp::keyPressed(int key) {
         if ( gui->isVisible() ){
             gui->toggleVisible();
             gui->clearWidgets();
-            guiConsole->toggleVisible();
         }else{
             reset_directory_gui();
-            guiConsole->toggleVisible();
         }
+       
+       guiConsole->toggleVisible();
     }
 	
 	lua.scriptKeyPressed(key);
@@ -128,14 +138,35 @@ void ofApp::mouseReleased(int x, int y, int button) {
 	lua.scriptMouseReleased(x, y, button);
 }
 
+template <typename T>
+T minimum(T a, T b) {
+   return (a <= b) ? a : b;
+}
+
+template <typename T>
+T maximum(T a, T b) {
+   return (a >= b) ? a : b;
+}
+
+void ofApp::windowResized(int w, int h){
+   if ( gui && guiConsole ){
+      int position = max_gui_width+10;
+      guiConsole->setPosition(position, 0);
+      guiConsole->setWidth(  maximum<int>(w - max_gui_width-20, 150));
+      guiConsole->setHeight(h);
+   }
+}
+
 //--------------------------------------------------------------
 // ofxLua error callback
 void ofApp::errorReceived(string& msg) {
-	ofLogNotice() << "got a script error: " << msg;
+	//ofLogNotice() << "got a script error: " << msg;
     hasError = true;
     error = msg;
     
-    addConsoleMessage(msg);
+   //addConsoleMessage(msg);
+   
+   
 }
 
 //--------------------------------------------------------------
@@ -176,7 +207,8 @@ void ofApp::add_to_gui(string path){
     for(int i = 0; i < dir.size(); ++i){
         string lua_file = dir.getPath(i);
         directory_map.insert(pair<string,string>(lua_file, path));
-        gui->addButton(lua_file, false);
+        int w = gui->addButton(lua_file, false)->getPaddingRect()->getWidth();
+       if(w > max_gui_width)max_gui_width=w;
     }
     
     //list all directories and recursively appl this func
@@ -197,6 +229,7 @@ void ofApp::reset_directory_gui(){
     build_directory_gui();
     gui->setVisible(true);
     gui->autoSizeToFitWidgets();
+   windowResized(ofGetWidth(), ofGetHeight());
 }
 
 void ofApp::guiEvent(ofxUIEventArgs &e){
@@ -214,23 +247,20 @@ void ofApp::guiConsoleEvent(ofxUIEventArgs &e){
 }
 
 void ofApp::addConsoleMessage(const string& message){
-    //guiConsole
-    guiConsole->addLabel(message);
+   guiConsole->addTextArea("", message, OFX_UI_FONT_SMALL);
 }
 
 //--------------------------------------------------
 void ofGUILoggerChannel::log(ofLogLevel level, const string & module, const string & message){
 	// print to cerr for OF_LOG_ERROR and OF_LOG_FATAL_ERROR, everything else to cout
-	ostream& out = level < OF_LOG_ERROR ? cout : cerr;
-	out << "[" << ofGetLogLevelName(level, true)  << "] ";
-	// only print the module name if it's not ""
-	if(module != ""){
-		//out << module << ": ";
-        return ofLog(level)<<module<<": "<<message;
-	}else{
-        app->addConsoleMessage(message);
-    }
-	//out << message << endl;
+	
+   StringBuilder m;
+   m.append("[").append(ofGetLogLevelName(level, true)).append("] ");
+   if(module != ""){
+      m.append(module).append(": ");
+   }
+   m.append(message);
+   app->addConsoleMessage(m.str());
 }
 
 void ofGUILoggerChannel::log(ofLogLevel level, const string & module, const char* format, ...){

@@ -35,7 +35,8 @@ class ofApp : public ofBaseApp, ofxLuaListener {
 		void mouseMoved(int x, int y );
 		void mouseDragged(int x, int y, int button);
 		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
+   void mouseReleased(int x, int y, int button);
+   void windowResized(int w, int h);
 		
 		// ofxLua error callback
 		void errorReceived(string& msg);
@@ -65,8 +66,8 @@ private:
     map<string,string> directory_map;
     void reset_directory_gui();
     
-    
-    
+   int max_gui_width;
+   
 };
 
 

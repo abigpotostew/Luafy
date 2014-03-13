@@ -17,8 +17,7 @@ void ofApp::setup() {
 
 	ofSetVerticalSync(true);
     ofSetEscapeQuitsApp(false);
-    
-    hasError= false;
+   
     
     //file browser gui
     gui = new ofxUIScrollableCanvas();
@@ -34,6 +33,7 @@ void ofApp::setup() {
    
    //console gui
    guiConsole = new ofxUIScrollableCanvas();
+   guiConsole->setSnapping(false);
    ofAddListener(gui->newGUIEvent,this,&ofApp::guiConsoleEvent);
    
    //Redirect all log output to gui console
@@ -42,32 +42,20 @@ void ofApp::setup() {
    
    //Set position and size of console GUI
    windowResized(ofGetWidth(), ofGetHeight());
-   
-   ofLogNotice()<<"Test Msg words words yellow sadfhjasdk fAUGSDLASKHJ"<<endl;
-   ofLogNotice()<<"This is a super long test message. I really want an avocado and a beach. Got one?"<<endl;
+
    
 	currentScript = 0;
 	
-	// init the lua state
-	lua.init(true);
-	
 	// listen to error events
 	lua.addListener(this);
-    
-    ofGetFrameNum();
 	
-	// bind the OF api to the lua state
-	lua.bind<ofxLuaBindings>();
-	
-	// run a script
-	lua.doScript(scripts[currentScript]);
-	
-	// call the script's setup() function
-	lua.scriptSetup();
-    
-    if(ofIsGLProgrammableRenderer()){
-        ofLog()<<"YEA I'm Programmable!"<<endl;
-    }
+   
+   reloadScript();
+   
+   
+   ofLogNotice()<<"Test Msg words words yellow sadfhjasdk fAUGSDLASKHJ"<<endl;
+   ofLogNotice()<<"This is a super long test message. I really want an avocado and a beach. Got one? Gosh I don't think this could be any long. I want pizza!!!!!! I want pizza! HUWAAW ahsdhakjsh "<<endl;
+
 }
 
 //--------------------------------------------------------------
@@ -81,9 +69,6 @@ void ofApp::draw() {
 	// call the script's draw() function
 	lua.scriptDraw();
 	
-    if(hasError){
-        ofDrawBitmapStringHighlight(error, 9, 9);
-    }
 	/*ofSetColor(0);
 	ofDrawBitmapString("use <- & -> to change between scripts", 10, ofGetHeight()-22);
 	ofDrawBitmapString(scripts[currentScript], 10, ofGetHeight()-10);*/
@@ -150,21 +135,25 @@ T maximum(T a, T b) {
 
 void ofApp::windowResized(int w, int h){
    if ( gui && guiConsole ){
-      int position = max_gui_width+10;
+      int padding = 10;
+      int position = max_gui_width+padding;
+      int width = maximum<int>(w - max_gui_width-padding, 150);
       guiConsole->setPosition(position, 0);
-      guiConsole->setWidth(  maximum<int>(w - max_gui_width-20, 150));
+      guiConsole->setWidth( width );
       guiConsole->setHeight(h);
+      auto widgets = guiConsole->getWidgets();
+      for(int i=0;i < widgets.size(); ++i){
+         //widgets[i]->windowResized(width, h-2*padding);
+      }
    }
 }
 
 //--------------------------------------------------------------
 // ofxLua error callback
-void ofApp::errorReceived(string& msg) {
+void ofApp::errorReceived(string& error) {
 	//ofLogNotice() << "got a script error: " << msg;
-    hasError = true;
-    error = msg;
     
-   //addConsoleMessage(msg);
+   addConsoleMessage(error);
    
    
 }
@@ -172,7 +161,6 @@ void ofApp::errorReceived(string& msg) {
 //--------------------------------------------------------------
 void ofApp::reloadScript() {
 	// exit, reinit the lua state, and reload the current script
-    hasError = false;
 	lua.scriptExit();
 	lua.init(true);
 	lua.bind<ofxLuaBindings>(); // rebind
@@ -187,14 +175,29 @@ void ofApp::reloadScript() {
     new_path.append(folder);
     new_path.append("?.lua;' .. package.path;");
     lua.doString(new_path);
+   
+   lua.bind<ofPrintWrapper>();
+   
+   lua.doString("print = function (...) local msg=''; local arg={...}; "\
+                "for i,v in ipairs(arg) do "\
+                "msg = msg .. tostring(v) ..'\t' end; "\
+                "of.printToGUI(msg); end"
+                );
     
-    ofResetElapsedTimeCounter();
+   ofResetElapsedTimeCounter();
 	lua.doScript(scripts[currentScript]);
 	lua.scriptSetup();
 }
 
-
-
+void ofPrintWrapper::bind(ofxLua& _lua){
+   using namespace luabind;
+   
+   module(_lua, "of")	// create an "of" table namespace
+   [
+    // bind a function
+    def("printToGUI", &ofPrintWrapper::lua_print)
+    ];
+}
 
 void ofApp::add_to_gui(string path){
     ofDirectory dir(path);

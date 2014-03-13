@@ -49,15 +49,15 @@ class ofApp : public ofBaseApp, ofxLuaListener {
 		ofxLua lua;
 		vector<string> scripts;
 		int currentScript;
-        bool hasError;
-        std::string error;
     
-    ofxUICanvas *gui;
+    ofxUIScrollableCanvas *gui;
 	void guiEvent(ofxUIEventArgs &e);
-    ofxUICanvas *guiConsole;
+    ofxUIScrollableCanvas *guiConsole;
 	void guiConsoleEvent(ofxUIEventArgs &e);
     
     void addConsoleMessage(const string&);
+   
+   
     
 private:
     
@@ -67,8 +67,18 @@ private:
     void reset_directory_gui();
     
    int max_gui_width;
-   
+  
 };
+
+class ofPrintWrapper{
+public:
+   static void bind(ofxLua& _lua);
+   //used to intercept lua print statements in scripts
+   static void lua_print(const char* msg){
+      ofLog()<<msg;
+   }
+};
+
 
 
 class ofGUILoggerChannel: public ofBaseLoggerChannel{

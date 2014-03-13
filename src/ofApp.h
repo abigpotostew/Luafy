@@ -29,7 +29,6 @@ class ofApp : public ofBaseApp, ofxLuaListener {
 		void draw();
         void exit();
     
-        void dragEvent(ofDragInfo dragInfo);
 		
 		// input
 		void keyPressed(int key);
@@ -43,8 +42,8 @@ class ofApp : public ofBaseApp, ofxLuaListener {
 		
 		// script control
 		void reloadScript();
-		void nextScript();
-		void prevScript();
+		//void nextScript();
+		//void prevScript();
 		
 		ofxLua lua;
 		vector<string> scripts;
@@ -54,6 +53,10 @@ class ofApp : public ofBaseApp, ofxLuaListener {
     
     ofxUICanvas *gui;
 	void guiEvent(ofxUIEventArgs &e);
+    ofxUICanvas *guiConsole;
+	void guiConsoleEvent(ofxUIEventArgs &e);
+    
+    void addConsoleMessage(const string&);
     
 private:
     
@@ -61,4 +64,19 @@ private:
     void add_to_gui(string path);
     map<string,string> directory_map;
     void reset_directory_gui();
+    
+    
+    
+};
+
+
+class ofGUILoggerChannel: public ofBaseLoggerChannel{
+public:
+    ofGUILoggerChannel(ofApp* _app):app(_app){};
+	//virtual ~ofGUILoggerChannel(){};
+	void log(ofLogLevel level, const string & module, const string & message);
+	void log(ofLogLevel level, const string & module, const char* format, ...);
+	void log(ofLogLevel level, const string & module, const char* format, va_list args);
+private:
+    ofApp* app;
 };

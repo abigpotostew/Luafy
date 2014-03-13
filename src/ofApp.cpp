@@ -20,8 +20,15 @@ void ofApp::setup() {
     
     hasError= false;
     
+    //file browser gui
     gui = new ofxUICanvas();
     ofAddListener(gui->newGUIEvent,this,&ofApp::guiEvent);
+    
+    //console gui
+    guiConsole = new ofxUICanvas();
+    ofAddListener(gui->newGUIEvent,this,&ofApp::guiConsoleEvent);
+    
+    ofSetLoggerChannel(ofPtr<ofGUILoggerChannel>(new ofGUILoggerChannel(this)console));
     
 		
 	// scripts to run
@@ -47,6 +54,10 @@ void ofApp::setup() {
 	
 	// call the script's setup() function
 	lua.scriptSetup();
+    
+    if(ofIsGLProgrammableRenderer()){
+        ofLog()<<"YEA I'm Programmable!"<<endl;
+    }
 }
 
 //--------------------------------------------------------------
@@ -77,6 +88,7 @@ void ofApp::exit() {
 	lua.clear();
     
     delete gui;
+    delete guiConsole;
 }
 
 //--------------------------------------------------------------
@@ -86,8 +98,10 @@ void ofApp::keyPressed(int key) {
         if ( gui->isVisible() ){
             gui->toggleVisible();
             gui->clearWidgets();
+            guiConsole->toggleVisible();
         }else{
             reset_directory_gui();
+            guiConsole->toggleVisible();
         }
     }
 	
@@ -115,10 +129,13 @@ void ofApp::mouseReleased(int x, int y, int button) {
 }
 
 //--------------------------------------------------------------
+// ofxLua error callback
 void ofApp::errorReceived(string& msg) {
 	ofLogNotice() << "got a script error: " << msg;
     hasError = true;
     error = msg;
+    
+    addConsoleMessage(msg);
 }
 
 //--------------------------------------------------------------
@@ -128,6 +145,9 @@ void ofApp::reloadScript() {
 	lua.scriptExit();
 	lua.init(true);
 	lua.bind<ofxLuaBindings>(); // rebind
+    
+    //Clear the gui console
+    guiConsole->clearWidgets();
     
     //add the current script path to the lua path so require works correctly
     string fullpath = ofFilePath::getAbsolutePath(ofToDataPath(scripts[currentScript]));
@@ -142,23 +162,8 @@ void ofApp::reloadScript() {
 	lua.scriptSetup();
 }
 
-void ofApp::nextScript() {
-	currentScript++;
-	if(currentScript > scripts.size()-1)
-		currentScript = 0;
-	reloadScript();
-}
-
-void ofApp::prevScript() {
-	currentScript--;
-	if(currentScript < 0)
-		currentScript = scripts.size()-1;
-	reloadScript();
-}
 
 
-void ofApp::dragEvent(ofDragInfo dragInfo){
-}
 
 void ofApp::add_to_gui(string path){
     ofDirectory dir(path);
@@ -202,4 +207,49 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         scripts.push_back(name);
         reloadScript();
     }
+}
+
+void ofApp::guiConsoleEvent(ofxUIEventArgs &e){
+    
+}
+
+void ofApp::addConsoleMessage(const string& message){
+    //guiConsole
+    guiConsole->addLabel(message);
+}
+
+//--------------------------------------------------
+void ofGUILoggerChannel::log(ofLogLevel level, const string & module, const string & message){
+	// print to cerr for OF_LOG_ERROR and OF_LOG_FATAL_ERROR, everything else to cout
+	ostream& out = level < OF_LOG_ERROR ? cout : cerr;
+	out << "[" << ofGetLogLevelName(level, true)  << "] ";
+	// only print the module name if it's not ""
+	if(module != ""){
+		//out << module << ": ";
+        return ofLog(level)<<module<<": "<<message;
+	}else{
+        app->addConsoleMessage(message);
+    }
+	//out << message << endl;
+}
+
+void ofGUILoggerChannel::log(ofLogLevel level, const string & module, const char* format, ...){
+	//TODO: this isn't supported yet by the gui console
+    va_list args;
+	va_start(args, format);
+	log(level, module, format, args);
+	va_end(args);
+}
+
+void ofGUILoggerChannel::log(ofLogLevel level, const string & module, const char* format, va_list args){
+	//thanks stefan!
+	//http://www.ozzu.com/cpp-tutorials/tutorial-writing-custom-printf-wrapper-function-t89166.html
+	FILE* out = level < OF_LOG_ERROR ? stdout : stderr;
+	fprintf(out, "[%s] ", ofGetLogLevelName(level, true).c_str());
+	if(module != ""){
+		fprintf(out, "%s: ", module.c_str());
+	}
+	vfprintf(out, format, args);
+	fprintf(out, "\n");
+    //TODO: this isn't supported yet
 }

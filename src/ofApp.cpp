@@ -1,11 +1,5 @@
 /*
- * Copyright (c) 2012 Dan Wilcox <danomatika@gmail.com>
- *
- * BSD Simplified License.
- * For information on usage and redistribution, and for a DISCLAIMER OF ALL
- * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- *
- * See https://github.com/danomatika/ofxLua for documentation
+ * Stewart Bracken Copyright 2014
  *
  */
 #include "ofApp.h"
@@ -28,7 +22,7 @@ void ofApp::setup() {
     guiConsole = new ofxUICanvas();
     ofAddListener(gui->newGUIEvent,this,&ofApp::guiConsoleEvent);
     
-    ofSetLoggerChannel(ofPtr<ofGUILoggerChannel>(new ofGUILoggerChannel(this)console));
+    ofSetLoggerChannel(ofPtr<ofGUILoggerChannel>(new ofGUILoggerChannel(this)));
     
 		
 	// scripts to run
@@ -74,9 +68,6 @@ void ofApp::draw() {
     if(hasError){
         ofDrawBitmapStringHighlight(error, 9, 9);
     }
-	/*ofSetColor(0);
-	ofDrawBitmapString("use <- & -> to change between scripts", 10, ofGetHeight()-22);
-	ofDrawBitmapString(scripts[currentScript], 10, ofGetHeight()-10);*/
 }
 
 //--------------------------------------------------------------
@@ -162,9 +153,6 @@ void ofApp::reloadScript() {
 	lua.scriptSetup();
 }
 
-
-
-
 void ofApp::add_to_gui(string path){
     ofDirectory dir(path);
     if (!dir.isDirectory())
@@ -230,7 +218,6 @@ void ofGUILoggerChannel::log(ofLogLevel level, const string & module, const stri
 	}else{
         app->addConsoleMessage(message);
     }
-	//out << message << endl;
 }
 
 void ofGUILoggerChannel::log(ofLogLevel level, const string & module, const char* format, ...){

@@ -2147,6 +2147,7 @@
 		6BAF5789189079600021E1D5 /* xorg.tmpl */ = {isa = PBXFileReference; lastKnownFileType = text; path = xorg.tmpl; sourceTree = "<group>"; };
 		6BAF578A189079600021E1D5 /* xorgsite.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = xorgsite.def; sourceTree = "<group>"; };
 		6BAF578B189079600021E1D5 /* xorgversion.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = xorgversion.def; sourceTree = "<group>"; };
+		6BDFCAC918D2594600107C52 /* StringBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringBuilder.h; sourceTree = "<group>"; };
 		6BE44AD418C9AEA500F2590A /* ofxUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI.h; sourceTree = "<group>"; };
 		6BE44AD518C9AEA500F2590A /* ofxUI2DGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxUI2DGraph.cpp; sourceTree = "<group>"; };
 		6BE44AD618C9AEA500F2590A /* ofxUI2DGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI2DGraph.h; sourceTree = "<group>"; };
@@ -7139,11 +7140,11 @@
 				6BE44ADB18C9AEA500F2590A /* ofxUIBiLabelSlider.cpp */,
 				6BE44ADC18C9AEA500F2590A /* ofxUIBiLabelSlider.h */,
 				6BE44ADD18C9AEA500F2590A /* ofxUIButton.cpp */,
-				6BE44ADE18C9AEA500F2590A /* ofxUIButton.h */,
 				6BE44ADF18C9AEA500F2590A /* ofxUICanvas.cpp */,
 				6BE44AE018C9AEA500F2590A /* ofxUICanvas.h */,
 				6BE44AE118C9AEA500F2590A /* ofxUICircleSlider.cpp */,
 				6BE44AE218C9AEA500F2590A /* ofxUICircleSlider.h */,
+				6BE44ADE18C9AEA500F2590A /* ofxUIButton.h */,
 				6BE44AE318C9AEA500F2590A /* ofxUIDefines.h */,
 				6BE44AE418C9AEA500F2590A /* ofxUIDragableLabelButton.cpp */,
 				6BE44AE518C9AEA500F2590A /* ofxUIDragableLabelButton.h */,
@@ -7336,6 +7337,7 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
+				6BDFCAC918D2594600107C52 /* StringBuilder.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;

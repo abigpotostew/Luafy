@@ -47,8 +47,8 @@ local function point(_x, _y, _r)
 	return {x=_x or 0, y=_y or 0, r = _r or 10}
 end
 
-local function add_point(_x, _y)
-	table.insert(points, point(_x, _y))
+local function add_point(_x, _y, _r)
+	table.insert(points, point(_x, _y, _r))
 	point_ct = point_ct + 1
 end
 
@@ -63,23 +63,23 @@ end
 -- Shapes
 -------------------------------------------------------------------------------
 local function create_shapes()
-	shapes.vertical = {
-		point(h_width, h_height - h_height/2),
-		point(h_width, h_height 			),
-		point(h_width, h_height + h_height/2)
-	}
-	shapes.horizontal = {
-		point(h_width - h_width/2, h_height),
-		point(h_width - h_width/4, h_height),
-		point(h_width 			 , h_height),
-		point(h_width + h_width/4, h_height),
-		point(h_width + h_width/2, h_height),
-	}
-	shapes.circle = {}
-	for i = 1, 10 do
-		local a = TWO_PI/10*i
-		table.insert( shapes.circle, point(h_width+200*math.cos(a), h_height + 200*math.sin(a) ) )
-	end
+	-- shapes.vertical = {
+	-- 	point(h_width, h_height - h_height/2, 20),
+	-- 	point(h_width, h_height 			, 20),
+	-- 	point(h_width, h_height + h_height/2, 20)
+	-- }
+	-- shapes.horizontal = {
+	-- 	point(h_width - h_width/2, h_height),
+	-- 	point(h_width - h_width/4, h_height),
+	-- 	point(h_width 			 , h_height),
+	-- 	point(h_width + h_width/4, h_height),
+	-- 	point(h_width + h_width/2, h_height),
+	-- }
+	-- shapes.circle = {}
+	-- for i = 1, 10 do
+	-- 	local a = TWO_PI/10*i
+	-- 	table.insert( shapes.circle, point(h_width+200*math.cos(a), h_height + 200*math.sin(a), 20 ) )
+	-- end
 	shapes.hexagon = {}
 	for i = 1, 6 do
 		local a = TWO_PI/6*i
@@ -89,8 +89,17 @@ local function create_shapes()
 	local step = (math.min(width,height)-100)/7
 	for i = 1, 7 do
 		for j = 1, 7 do
-			table.insert( shapes.grid, point(50 + i*step, 50 + j*step ) )
+			table.insert( shapes.grid, point(50 + i*step, 50 + j*step, 30 ) )
 		end
+	end
+	
+	shapes.metatron = {}
+	local mr = 50
+	table.insert(shapes.metatron, point(h_width,h_height,mr))
+	for i=1,6 do
+		local a = TWO_PI/6*i
+		table.insert( shapes.metatron, point(h_width+mr*2*math.cos(a), h_height + mr*2*math.sin(a), mr ) )
+		table.insert( shapes.metatron, point(h_width+mr*4*math.cos(a), h_height + mr*4*math.sin(a), mr ) )
 	end
 	
 	
@@ -114,8 +123,10 @@ local function start_next_shape()
 			add_point(h_width, h_height)
 		end
 		local prev_pt_ct = point_ct
+		local p
 		while point_ct < shape_point_ct do
-			add_point (points[point_ct%prev_pt_ct+1].x, points[point_ct%prev_pt_ct+1].y)
+			p = points[point_ct%prev_pt_ct+1]
+			add_point (p.x, p.y, p.r)
 		end
 	end
 	
@@ -139,9 +150,9 @@ end
 ----------------------------------------------------
 function setup()
 	of.enableSmoothing()
-	of.setWindowShape(800,600)
-	width = of.getWidth()
-	height = of.getHeight()
+	width = 800
+	height = 600
+	of.setWindowShape(width,height)
 	h_width = width/2
 	h_height = height/2
 	hw_ratio = height / width
@@ -176,7 +187,7 @@ function draw()
 	of.setHexColor(0x000000)
 
 	for i = 1, point_ct do
-		of.circle(points[i].x, points[i].y, 10)
+		of.circle(points[i].x, points[i].y, points[i].r)
 	end
 	
 end

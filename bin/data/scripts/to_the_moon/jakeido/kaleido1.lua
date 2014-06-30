@@ -13,8 +13,8 @@ local error = nil
 ----------------------------------------------------
 function setup()
 	print("script setup")
-	width = 800
-	height = 800
+	width = 1440
+	height = 900
 	h_width = width/2
 	h_height = height/2
 
@@ -24,11 +24,15 @@ function setup()
 	
 	of.setFrameRate(30) -- if vertical sync is off, we can go a bit fast... this caps the framerate at 60fps
 	--shader.load('vert', 'frag')
-	opal:loadImage("scripts/to_the_moon/jakeido/opal.jpg")
+	local opalPath = "scripts/to_the_moon/jakeido/opal.jpg"
+	local oversoulPath = "images/oversoul.jpg"
+	opal:loadImage(oversoulPath)
 	of.setWindowShape(width, height)
 	
-	
-	opal:getTextureReference():setTextureWrapRepeat()
+	local tex = opal:getTextureReference()
+	--of.setTextureWrapST(of.WRAP.REPEAT, of.WRAP.REPEAT)
+	of.setTextureWrapRepeat()
+	--tex:setTextureWrap(of.WRAP.REPEAT, of.WRAP.REPEAT)
 
 	shader:setUniform2i('resolution', width, height)
 	
@@ -83,8 +87,9 @@ function draw()
 	shader:setUniform1f('time', time)
 	shader:setUniform2f('resolution', width, height)
 	
-		opal:draw(0,0,width,height) --this binds the texture and draws a plane with correct tex coords.
-		--opal:getTextureReference():draw(h_width,0,h_width,h_height)
+		opal:draw(0,0,opal:getWidth(),opal:getHeight()) --this binds the texture and draws a plane with correct tex coords.
+
+		of.beginShape()
 
 	shader:endShader()
 	--opal:getTextureReference():unbind()

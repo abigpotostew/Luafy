@@ -25,9 +25,9 @@ void main(void){
   float x = cos(ma) * rad;
   float y = sin(ma) * rad;
 	
-  float t = time/10.;
+  float t = time*1000;
   
-  gl_FragColor = texture2DRect(tex0, pos);//vec2(x-t, y-t)); //vec4(pos.x,pos.y,0,1.0) * 
+  gl_FragColor = texture2DRect(tex0, vec2(x-t, y-t));//vec2(x-t, y-t)); //vec4(pos.x,pos.y,0,1.0) * 
   
 }
 

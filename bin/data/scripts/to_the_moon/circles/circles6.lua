@@ -74,7 +74,7 @@ function setup()
 	for i=1, ct do
 		--add_line(0, HALF_PI,width*i/20,nil,i/20*TWO_PI/40 + TWO_PI/120)
 		--position, angle,  radius,    color,speed
-		add_line(0, HALF_PI, i/ct, (i%2==0)and 0xFF0000 or 0xFFFFFF, i/ct*TWO_PI + TWO_PI/30)
+		add_line(0, HALF_PI, i/ct, (i%2==0)and 0x99FFCC or 0xFFFFFF, i/ct*TWO_PI + TWO_PI/30)
 	end
 	
 	of.disableSmoothing()

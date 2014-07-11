@@ -4,15 +4,17 @@ local time = 0
 local bSmooth = false
 
 local opal = of.Image()
+local eyes_img = of.Image()
 local shader = of.Shader()
 local plane
 
 local target = of.TARGET.CURRENT
 
+local vbo_mesh
+
 local error = nil
 ----------------------------------------------------
 function setup()
-	print("script setup")
 	width = 800
 	height = 800
 	h_width = width/2
@@ -23,33 +25,24 @@ function setup()
 	of.setWindowTitle("kaleido")
 	
 	of.setFrameRate(30) -- if vertical sync is off, we can go a bit fast... this caps the framerate at 60fps
-	--shader.load('vert', 'frag')
+	
 	opal:loadImage("scripts/to_the_moon/jakeido/opal.jpg")
+   eyes_img:loadImage("scripts/to_the_moon/jakeido/eyes.jpg")
+
 	of.setWindowShape(width, height)
 	
-	
-	opal:getTextureReference():setTextureWrapRepeat()
+   of.setTextureWrap(of.Texture.WRAP.MIRRORED_REPEAT,of.Texture.WRAP.MIRRORED_REPEAT)
 
 	shader:setUniform2i('resolution', width, height)
 	
-	--plane = of.planePrimitive()
-	--plane:set(width,height,10,10)
-	--plane:mapTextCoords(0,0, opal:getWidth(), opal:getHeight())
-	
-	--shader:setUniformTexture('tex0', opal:getTextureReference(), 0)
-	if target == of.TARGET.OSX then
-		shader:load('scripts/to_the_moon/jakeido/gl2/pass.vert.glsl',
-			 		'scripts/to_the_moon/jakeido/gl2/kaleidoscope.frag.glsl')
-		--shader:load('scripts/to_the_moon/jakeido/gl2/shader.vert',
-		--			 'scripts/to_the_moon/jakeido/gl2/shader.frag')
-	end
-	
+   --Load correct shader
 	if target == of.TARGET.RASPBERRYPI then
-		shader:load('scripts/to_the_moon/jakeido/es2/pass.vert.glsl',
-			 		'scripts/to_the_moon/jakeido/es2/kaleidoscope.frag.glsl')
-		--shader:load('scripts/to_the_moon/jakeido/es2/shader.vert',
-		--			 		'scripts/to_the_moon/es2/jakeido/shader.frag')
-	end
+      shader:load('scripts/to_the_moon/jakeido/es2/kaleidoscope')
+	elseif of.isGLProgrammableRenderer() then
+		shader:load('scripts/to_the_moon/jakeido/gl3/kaleidoscope')
+	else
+      shader:load('scripts/to_the_moon/jakeido/gl2/kaleidoscope')
+   end
 	
 	shader:setUniform2f('resolution', width, height)
 	shader:setUniform2f('mouse', h_width, h_height)
@@ -57,11 +50,24 @@ function setup()
 	if not shader:isLoaded() then
 		--og.Log()
 	end
+
+
+	vbo_mesh = of.VboMesh()
+	vbo_mesh:setUsage(of.PRIMITIVE.TRIANGLES)
+	vbo_mesh:addVertex(0,0,0)
+	vbo_mesh:addVertex(width,0,0)
+	vbo_mesh:addVertex(width,height,0)
+	vbo_mesh:addVertex(0,height,0)
+	vbo_mesh:addTexCoord(0, 0)
+	vbo_mesh:addTexCoord(0, 10)
+	vbo_mesh:addTexCoord(10, 10)
+	vbo_mesh:addTexCoord(0, 10)
+
 end
 
 ----------------------------------------------------
 function update()
-	time = time + 0.033
+	time = of.getElapsedTimef()
 end
 
 ----------------------------------------------------
@@ -73,25 +79,17 @@ function draw()
 		return
 	end
 
-	--opal:bind()
-	
-	--shader:setUniformTexture("tex0", opal:getTextureReference(), 1);
-	--opal:getTextureReference():bind()
+
 	shader:beginShader()
-	
+
 	shader:setUniform2f('mouse',of.getMouseX(),of.getMouseY())
-	shader:setUniform1f('time', time)
+	shader:setUniform1f('time', of.getElapsedTimef())
 	shader:setUniform2f('resolution', width, height)
 	
-		opal:draw(0,0,width,height) --this binds the texture and draws a plane with correct tex coords.
-		--opal:getTextureReference():draw(h_width,0,h_width,h_height)
+		eyes_img:draw(0,0,width,height) --this binds the texture and draws a plane with correct tex coords.
 
 	shader:endShader()
-	--opal:getTextureReference():unbind()
-	
-	--opal:draw(h_width,h_height,h_width,h_height)
-	
-	--opal:unbind()
+
 end
 
 ----------------------------------------------------

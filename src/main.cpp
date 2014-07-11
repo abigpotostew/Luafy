@@ -12,9 +12,21 @@
 #include "ofApp.h"
 #include "ofAppGlutWindow.h"
 
+#ifdef USE_PROGRAMMABLE_GL
+// tig: using the programmable GL renderer is more fun, since we can use GLSL 150 =)
+// define USE_PROGRAMMABLE_GL in testApp.h to run this example in OpenGL 3.2 if your
+// system provides it...
+#include "ofGLProgrammableRenderer.h"
+#endif
+
 //========================================================================
 int main() {
 
+#ifdef USE_PROGRAMMABLE_GL
+	ofPtr<ofBaseRenderer> renderer(new ofGLProgrammableRenderer(false));
+	ofSetCurrentRenderer(renderer, false);
+#endif
+    
     ofAppGlutWindow window;
 	ofSetupOpenGL(&window, 1024, 768, OF_WINDOW);
 

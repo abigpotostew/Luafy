@@ -5,8 +5,10 @@ local bSmooth = false
 
 local opal = of.Image()
 local eyes_img = of.Image()
+local ballet_img = of.Image()
+local ballet_img2 = of.Image()
+
 local shader = of.Shader()
-local plane
 
 local target = of.TARGET.CURRENT
 
@@ -28,6 +30,10 @@ function setup()
 	
 	opal:loadImage("scripts/to_the_moon/jakeido/opal.jpg")
    eyes_img:loadImage("scripts/to_the_moon/jakeido/eyes.jpg")
+   ballet_img:loadImage("scripts/to_the_moon/jakeido/ballet.jpg")
+   ballet_img2:loadImage("scripts/to_the_moon/jakeido/ballet2.jpg")
+   eyes_img=nil
+   eyes_img = ballet_img2
 
 	of.setWindowShape(width, height)
 	
